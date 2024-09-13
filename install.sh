@@ -102,3 +102,18 @@ function check_target_os_version() {
 }
 
 check_target_os_version "$release" "$os_version"
+
+# 定义 main 函数
+main() {
+  echo "函数接收到 $# 个参数"
+
+  if [[ $# > 0 ]]; then
+
+  else
+    show_menu
+  fi
+
+}
+
+# 调用 main 函数并将所有传递给脚本的参数传递给 main
+main "$@"
