@@ -97,3 +97,30 @@ else
   exit 1
 
 fi
+
+install_base() {
+  case "${release}" in
+  ubuntu | debian | armbian)
+    apt-get update && apt-get install -y -q wget curl tar tzdata
+    ;;
+  centos | almalinux | rocky | oracle)
+    yum -y update && yum install -y -q wget curl tar tzdata
+    ;;
+  fedora)
+    dnf -y update && dnf install -y -q wget curl tar tzdata
+    ;;
+  arch | manjaro | parch)
+    pacman -Syu && pacman -Syu --noconfirm wget curl tar tzdata
+    ;;
+  opensuse-tumbleweed)
+    zypper refresh && zypper -q install -y wget curl tar timezone
+    ;;
+  *)
+    apt-get update && apt install -y -q wget curl tar tzdata
+    ;;
+  esac
+}
+
+echo -e "${green}Running...${plain}"
+# install_base
+# install_x-ui $1
