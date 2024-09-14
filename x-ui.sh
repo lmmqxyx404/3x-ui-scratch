@@ -103,6 +103,45 @@ function check_target_os_version() {
 
 check_target_os_version "$release" "$os_version"
 
+show_menu() {
+  echo -e "
+  ${green}3X-UI Panel Management Script${plain}
+  ${green}0.${plain} Exit Script
+————————————————
+  ${green}1.${plain} Install
+  ${green}2.${plain} Update
+  ${green}3.${plain} Update Menu
+  ${green}4.${plain} Custom Version
+  ${green}5.${plain} Uninstall
+————————————————
+  ${green}6.${plain} Reset Username & Password & Secret Token
+  ${green}7.${plain} Reset Web Base Path
+  ${green}8.${plain} Reset Settings
+  ${green}9.${plain} Change Port
+  ${green}10.${plain} View Current Settings
+————————————————
+  ${green}11.${plain} Start
+  ${green}12.${plain} Stop
+  ${green}13.${plain} Restart
+  ${green}14.${plain} Check Status
+  ${green}15.${plain} Check Logs
+————————————————
+  ${green}16.${plain} Enable Autostart
+  ${green}17.${plain} Disable Autostart
+————————————————
+  ${green}18.${plain} SSL Certificate Management
+  ${green}19.${plain} Cloudflare SSL Certificate
+  ${green}20.${plain} IP Limit Management
+  ${green}21.${plain} Firewall Management
+————————————————
+  ${green}22.${plain} Enable BBR 
+  ${green}23.${plain} Update Geo Files
+  ${green}24.${plain} Speedtest by Ookla
+"
+
+  echo && read -p "Please enter your selection [0-24]: " num
+}
+
 # 定义 main 函数
 main() {
   echo "函数接收到 $# 个参数"
