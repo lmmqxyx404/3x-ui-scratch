@@ -2,8 +2,9 @@ package config
 
 import (
 	_ "embed"
-	/* "fmt"
-	"os" */
+	"os"
+
+	/* "fmt"*/
 	"strings"
 )
 
@@ -31,7 +32,6 @@ func GetName() string {
 	return strings.TrimSpace(name)
 }
 
-/*
 func GetLogLevel() LogLevel {
 	if IsDebug() {
 		return Debug
@@ -47,6 +47,7 @@ func IsDebug() bool {
 	return os.Getenv("XUI_DEBUG") == "true"
 }
 
+/*
 func GetBinFolderPath() string {
 	binFolderPath := os.Getenv("XUI_BIN_FOLDER")
 	if binFolderPath == "" {
