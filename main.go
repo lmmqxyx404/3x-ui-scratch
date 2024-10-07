@@ -3,14 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 
 	"os"
+
+	"x-ui-scratch/config"
 )
 
 func runWebServer() {
 	fmt.Println("runWebServer")
 
-	// log.Printf("Starting %v %v", config.GetName(), config.GetVersion())
+	log.Printf("Starting %v %v", config.GetName(), config.GetVersion())
 }
 
 func main() {
