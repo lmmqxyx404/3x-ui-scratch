@@ -9,6 +9,7 @@ import (
 
 	"x-ui-scratch/config"
 	"x-ui-scratch/logger"
+	"x-ui-scratch/web"
 
 	"github.com/op/go-logging"
 )
@@ -17,7 +18,7 @@ func runWebServer() {
 	fmt.Println("runWebServer", config.GetLogLevel())
 
 	log.Printf("Starting %v %v", config.GetName(), config.GetVersion())
-
+	// set the logger
 	switch config.GetLogLevel() {
 	case config.Debug:
 		logger.InitLogger(logging.DEBUG)
@@ -33,6 +34,14 @@ func runWebServer() {
 		log.Fatalf("Unknown log level: %v", config.GetLogLevel())
 	}
 
+	var server *web.Server
+	server = web.NewServer()
+	log.Fatalf("Error starting web server: %v", server)
+	err := server.Start()
+	if err != nil {
+		log.Fatalf("Error starting web server: %v", err)
+		return
+	}
 }
 
 func main() {
