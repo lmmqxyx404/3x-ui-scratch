@@ -2,6 +2,7 @@ package config
 
 import (
 	_ "embed"
+	"fmt"
 	"os"
 
 	/* "fmt"*/
@@ -47,13 +48,8 @@ func IsDebug() bool {
 	return os.Getenv("XUI_DEBUG") == "true"
 }
 
-/*
-func GetBinFolderPath() string {
-	binFolderPath := os.Getenv("XUI_BIN_FOLDER")
-	if binFolderPath == "" {
-		binFolderPath = "bin"
-	}
-	return binFolderPath
+func GetDBPath() string {
+	return fmt.Sprintf("%s/%s.db", GetDBFolderPath(), GetName())
 }
 
 func GetDBFolderPath() string {
@@ -64,9 +60,18 @@ func GetDBFolderPath() string {
 	return dbFolderPath
 }
 
-func GetDBPath() string {
-	return fmt.Sprintf("%s/%s.db", GetDBFolderPath(), GetName())
+/*
+func GetBinFolderPath() string {
+	binFolderPath := os.Getenv("XUI_BIN_FOLDER")
+	if binFolderPath == "" {
+		binFolderPath = "bin"
+	}
+	return binFolderPath
 }
+
+
+
+
 
 func GetLogFolder() string {
 	logFolderPath := os.Getenv("XUI_LOG_FOLDER")

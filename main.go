@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"x-ui-scratch/config"
+	"x-ui-scratch/database"
 	"x-ui-scratch/logger"
 	"x-ui-scratch/web"
 
@@ -34,10 +35,15 @@ func runWebServer() {
 		log.Fatalf("Unknown log level: %v", config.GetLogLevel())
 	}
 
+	err := database.InitDB(config.GetDBPath())
+	if err != nil {
+		log.Fatalf("Error initializing database: %v", err)
+	}
+
 	var server *web.Server
 	server = web.NewServer()
 	log.Fatalf("Error starting web server: %v", server)
-	err := server.Start()
+	err = server.Start()
 	if err != nil {
 		log.Fatalf("Error starting web server: %v", err)
 		return
