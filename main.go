@@ -11,6 +11,7 @@ import (
 	"x-ui-scratch/database"
 	"x-ui-scratch/logger"
 	"x-ui-scratch/web"
+	"x-ui-scratch/web/global"
 
 	"github.com/op/go-logging"
 )
@@ -42,7 +43,9 @@ func runWebServer() {
 
 	var server *web.Server
 	server = web.NewServer()
-	log.Fatalf("Error starting web server: %v", server)
+	// log.Fatalf("Error starting web server: %v", server)
+	global.SetWebServer(server)
+
 	err = server.Start()
 	if err != nil {
 		log.Fatalf("Error starting web server: %v", err)
