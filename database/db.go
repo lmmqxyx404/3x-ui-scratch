@@ -2,6 +2,7 @@ package database
 
 import (
 	"io/fs"
+	"log"
 	"os"
 	"path"
 	"x-ui-scratch/config"
@@ -36,6 +37,22 @@ func InitDB(dbPath string) error {
 	if err != nil {
 		return err
 	}
+
+	if err := initModels(); err != nil {
+		return err
+	}
 	// TODO
+	return nil
+}
+
+func initModels() error {
+	// TODO: 添加可用的 model
+	models := []interface{}{}
+	for _, model := range models {
+		if err := db.AutoMigrate(model); err != nil {
+			log.Printf("Error auto migrating model: %v", err)
+			return err
+		}
+	}
 	return nil
 }
