@@ -2,7 +2,7 @@ package global
 
 var (
 	webServer WebServer
-	// subServer SubServer
+	subServer SubServer
 )
 
 type WebServer interface {
@@ -10,6 +10,14 @@ type WebServer interface {
 	// GetCtx() context.Context
 }
 
+type SubServer interface {
+	// GetCtx() context.Context
+}
+
 func SetWebServer(s WebServer) {
 	webServer = s
+}
+
+func SetSubServer(s SubServer) {
+	subServer = s
 }

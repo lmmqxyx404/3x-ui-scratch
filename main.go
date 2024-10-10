@@ -10,6 +10,7 @@ import (
 	"x-ui-scratch/config"
 	"x-ui-scratch/database"
 	"x-ui-scratch/logger"
+	"x-ui-scratch/sub"
 	"x-ui-scratch/web"
 	"x-ui-scratch/web/global"
 
@@ -49,6 +50,15 @@ func runWebServer() {
 	err = server.Start()
 	if err != nil {
 		log.Fatalf("Error starting web server: %v", err)
+		return
+	}
+
+	var subServer *sub.Server
+	subServer = sub.NewServer()
+	global.SetSubServer(subServer)
+	err = subServer.Start()
+	if err != nil {
+		log.Fatalf("Error starting sub server: %v", err)
 		return
 	}
 }
