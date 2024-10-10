@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os/signal"
+	"syscall"
 
 	"os"
 
@@ -60,6 +62,33 @@ func runWebServer() {
 	if err != nil {
 		log.Fatalf("Error starting sub server: %v", err)
 		return
+	}
+
+	sigCh := make(chan os.Signal, 1)
+	// Trap shutdown signals
+	// 捕获开发调试时用的 sigint 信号, 必须要手动添加对应的信号量，否则不会捕获
+	signal.Notify(sigCh, syscall.SIGHUP, syscall.SIGTERM, syscall.SIGINT)
+	for {
+		sig := <-sigCh
+
+		switch sig {
+		case syscall.SIGHUP:
+			// logger.Info("Received SIGHUP signal. Restarting servers...")
+
+		case syscall.SIGINT:
+			// 添加处理 SIGINT 时的逻辑
+			log.Println("Received SIGINT signal. Shutting down servers. ")
+			server.Stop()
+			subServer.Stop()
+			log.Println("Stopped server")
+			// 必须要返回，不返回就会一直拦截相关的信号量
+			return
+		default:
+			server.Stop()
+			subServer.Stop()
+			log.Println("Shutting down servers.")
+			return
+		}
 	}
 }
 
