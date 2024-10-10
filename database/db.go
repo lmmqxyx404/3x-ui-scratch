@@ -58,7 +58,9 @@ func InitDB(dbPath string) error {
 
 func initModels() error {
 	// TODO: 添加可用的 model
-	models := []interface{}{}
+	models := []interface{}{
+		&model.User{},
+	}
 	for _, model := range models {
 		if err := db.AutoMigrate(model); err != nil {
 			log.Printf("Error auto migrating model: %v", err)
