@@ -2,9 +2,13 @@ package web
 
 import (
 	"context"
+	"io"
 
+	"x-ui-scratch/config"
+	"x-ui-scratch/logger"
 	"x-ui-scratch/web/service"
 
+	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 )
 
@@ -42,9 +46,32 @@ func (s *Server) Start() (err error) {
 	s.cron = cron.New(cron.WithLocation(loc), cron.WithSeconds())
 	s.cron.Start()
 
+	_, err = s.initRouter()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (s *Server) Stop() error {
 	return nil
+}
+
+func (s *Server) initRouter() (*gin.Engine, error) {
+	logger.Info("initRouter")
+	if config.IsDebug() {
+		logger.Info("debug mode")
+
+		// gin.SetMode(gin.DebugMode)
+	} else {
+		logger.Info("release mode")
+		gin.DefaultWriter = io.Discard
+		gin.DefaultErrorWriter = io.Discard
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	engine := gin.Default()
+
+	return engine, nil
 }
