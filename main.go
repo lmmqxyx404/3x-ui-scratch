@@ -44,8 +44,8 @@ func runWebServer() {
 		log.Fatalf("Error initializing database: %v", err)
 	}
 
-	var server *web.Server
-	server = web.NewServer()
+	// server *web.Server
+	var server = web.NewServer()
 	// log.Fatalf("Error starting web server: %v", server)
 	global.SetWebServer(server)
 
@@ -55,18 +55,18 @@ func runWebServer() {
 		return
 	}
 
-	var subServer *sub.Server
-	subServer = sub.NewServer()
+	// subServer *sub.Server
+	var subServer = sub.NewServer()
 	global.SetSubServer(subServer)
 	err = subServer.Start()
 	if err != nil {
 		log.Fatalf("Error starting sub server: %v", err)
 		return
 	}
-
+	// 这行代码创建了一个缓冲为 1 的信号通道 sigCh，用来接收操作系统发出的信号。
 	sigCh := make(chan os.Signal, 1)
 	// Trap shutdown signals
-	// 捕获开发调试时用的 sigint 信号, 必须要手动添加对应的信号量，否则不会捕获
+	// 使用 signal.Notify 函数让 Go 进程监听 SIGHUP 和 SIGTERM 信号。这意味着当操作系统发送这两种信号时，信号会被发送到 sigCh 通道中。
 	signal.Notify(sigCh, syscall.SIGHUP, syscall.SIGTERM, syscall.SIGINT)
 	for {
 		sig := <-sigCh

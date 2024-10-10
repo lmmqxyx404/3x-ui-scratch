@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"x-ui-scratch/web/service"
+
+	"github.com/robfig/cron/v3"
 )
 
 type Server struct {
@@ -11,6 +13,8 @@ type Server struct {
 	cancel context.CancelFunc
 
 	settingService service.SettingService
+
+	cron *cron.Cron
 }
 
 func NewServer() *Server {
@@ -30,10 +34,14 @@ func (s *Server) Start() (err error) {
 		}
 	}()
 
-	_, err = s.settingService.GetTimeLocation()
+	loc, err := s.settingService.GetTimeLocation()
 	if err != nil {
 		return err
 	}
+
+	s.cron = cron.New(cron.WithLocation(loc), cron.WithSeconds())
+	s.cron.Start()
+
 	return nil
 }
 
