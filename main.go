@@ -77,10 +77,13 @@ func runWebServer() {
 
 		case syscall.SIGINT:
 			// 添加处理 SIGINT 时的逻辑
-			log.Println("Received SIGINT signal. Shutting down servers. ")
+			logger.Info("Received SIGINT signal. Shutting down servers. ")
 			server.Stop()
 			subServer.Stop()
-			log.Println("Stopped server")
+			// 使用自定义 logger
+			logger.Info("Stopped server")
+			//  外部库直接调用
+			// log.Println("Stopped server")
 			// 必须要返回，不返回就会一直拦截相关的信号量
 			return
 		default:
