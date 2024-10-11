@@ -84,5 +84,9 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		engine.Use(middleware.DomainValidatorMiddleware(webDomain))
 	}
 
+	_, err = s.settingService.GetSecret()
+	if err != nil {
+		return nil, err
+	}
 	return engine, nil
 }

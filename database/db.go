@@ -92,3 +92,11 @@ func isTableEmpty(tableName string) (bool, error) {
 	err := db.Table(tableName).Count(&count).Error
 	return count == 0, err
 }
+
+func GetDB() *gorm.DB {
+	return db
+}
+
+func IsNotFound(err error) bool {
+	return err == gorm.ErrRecordNotFound
+}
