@@ -9,6 +9,7 @@ import (
 	"x-ui-scratch/web/middleware"
 	"x-ui-scratch/web/service"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 )
@@ -63,7 +64,6 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	logger.Info("initRouter")
 	if config.IsDebug() {
 		logger.Info("debug mode")
-
 		// gin.SetMode(gin.DebugMode)
 	} else {
 		logger.Info("release mode")
@@ -88,5 +88,13 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	basePath, err := s.settingService.GetBasePath()
+	if err != nil {
+		return nil, err
+	}
+	engine.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{basePath + "panel/API/"})))
+
+	// TODO
 	return engine, nil
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strings"
 	"time"
 	"x-ui-scratch/database"
 	"x-ui-scratch/database/model"
@@ -84,4 +85,18 @@ func (s *SettingService) saveSetting(key string, value string) error {
 	setting.Key = key
 	setting.Value = value
 	return db.Save(setting).Error
+}
+
+func (s *SettingService) GetBasePath() (string, error) {
+	basePath, err := s.getString("webBasePath")
+	if err != nil {
+		return "", err
+	}
+	if !strings.HasPrefix(basePath, "/") {
+		basePath = "/" + basePath
+	}
+	if !strings.HasSuffix(basePath, "/") {
+		basePath += "/"
+	}
+	return basePath, nil
 }
