@@ -60,6 +60,7 @@ func initModels() error {
 	// TODO: 添加可用的 model
 	models := []interface{}{
 		&model.User{},
+		&model.Setting{},
 	}
 	for _, model := range models {
 		if err := db.AutoMigrate(model); err != nil {
