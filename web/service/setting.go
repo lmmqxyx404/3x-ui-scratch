@@ -7,6 +7,7 @@ import (
 	"x-ui-scratch/database/model"
 	"x-ui-scratch/logger"
 	"x-ui-scratch/util/common"
+	"x-ui-scratch/util/random"
 )
 
 type SettingService struct{}
@@ -19,6 +20,8 @@ var defaultValueMap = map[string]string{
 	"webBasePath": "/",
 
 	"tgLang": "en-US",
+
+	"secret": random.Seq(32),
 }
 
 func (s *SettingService) GetTimeLocation() (*time.Location, error) {
