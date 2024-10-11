@@ -2,17 +2,25 @@ package web
 
 import (
 	"context"
+	"embed"
 	"io"
+	"strings"
 
 	"x-ui-scratch/config"
 	"x-ui-scratch/logger"
+	"x-ui-scratch/web/locale"
 	"x-ui-scratch/web/middleware"
 	"x-ui-scratch/web/service"
 
 	"github.com/gin-contrib/gzip"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 )
+
+//go:embed translation/*
+var i18nFS embed.FS
 
 type Server struct {
 	ctx    context.Context
@@ -84,7 +92,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		engine.Use(middleware.DomainValidatorMiddleware(webDomain))
 	}
 
-	_, err = s.settingService.GetSecret()
+	secret, err := s.settingService.GetSecret()
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +102,25 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		return nil, err
 	}
 	engine.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{basePath + "panel/API/"})))
+	assetsBasePath := basePath + "assets/"
+
+	store := cookie.NewStore(secret)
+	engine.Use(sessions.Sessions("3x-ui", store))
+	engine.Use(func(c *gin.Context) {
+		c.Set("base_path", basePath)
+	})
+	engine.Use(func(c *gin.Context) {
+		uri := c.Request.RequestURI
+		if strings.HasPrefix(uri, assetsBasePath) {
+			c.Header("Cache-Control", "max-age=31536000")
+		}
+	})
+
+	// init i18n
+	err = locale.InitLocalizer(i18nFS, &s.settingService)
+	if err != nil {
+		return nil, err
+	}
 
 	// TODO
 	return engine, nil
