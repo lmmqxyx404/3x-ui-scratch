@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"strings"
 	"time"
 	"x-ui-scratch/database"
@@ -22,6 +23,9 @@ var defaultValueMap = map[string]string{
 	"tgLang": "en-US",
 
 	"secret": random.Seq(32),
+
+	"webListen": "",
+	"webPort":   "2054",
 }
 
 func (s *SettingService) GetTimeLocation() (*time.Location, error) {
@@ -110,4 +114,20 @@ func (s *SettingService) GetBasePath() (string, error) {
 
 func (s *SettingService) GetTgLang() (string, error) {
 	return s.getString("tgLang")
+}
+
+func (s *SettingService) GetListen() (string, error) {
+	return s.getString("webListen")
+}
+
+func (s *SettingService) GetPort() (int, error) {
+	return s.getInt("webPort")
+}
+
+func (s *SettingService) getInt(key string) (int, error) {
+	str, err := s.getString(key)
+	if err != nil {
+		return 0, err
+	}
+	return strconv.Atoi(str)
 }
