@@ -17,6 +17,8 @@ var defaultValueMap = map[string]string{
 	"webDomain": "",
 
 	"webBasePath": "/",
+
+	"tgLang": "en-US",
 }
 
 func (s *SettingService) GetTimeLocation() (*time.Location, error) {
