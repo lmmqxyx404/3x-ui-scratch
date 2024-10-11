@@ -11,6 +11,7 @@ import (
 
 	"x-ui-scratch/config"
 	"x-ui-scratch/logger"
+	"x-ui-scratch/web/controller"
 	"x-ui-scratch/web/locale"
 	"x-ui-scratch/web/middleware"
 	"x-ui-scratch/web/service"
@@ -32,6 +33,8 @@ type Server struct {
 	settingService service.SettingService
 
 	cron *cron.Cron
+
+	index *controller.IndexController
 }
 
 type wrapAssetsFS struct {
@@ -141,7 +144,6 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	engine.FuncMap["i18n"] = i18nWebFunc
 	engine.Use(locale.LocalizerMiddleware())
 
-	// TODO
 	// set static files and template
 	if config.IsDebug() {
 		panic("UNIMPELEMTED DEBUG MODE")
@@ -154,7 +156,17 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		engine.SetHTMLTemplate(template)
 		engine.StaticFS(basePath+"assets", http.FS(&wrapAssetsFS{FS: assetsFS}))
 	}
-	panic("modify here")
+
+	// Apply the redirect middleware (`/xui` to `/panel`)
+	engine.Use(middleware.RedirectMiddleware(basePath))
+
+	g := engine.Group(basePath)
+
+	s.index = controller.NewIndexController(g)
+	// s.server = controller.NewServerController(g)
+	// s.panel = controller.NewXUIController(g)
+	// s.api = controller.NewAPIController(g)
+
 	return engine, nil
 }
 
