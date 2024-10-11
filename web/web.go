@@ -6,7 +6,9 @@ import (
 	"html/template"
 	"io"
 	"io/fs"
+	"net"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"x-ui-scratch/config"
@@ -36,6 +38,9 @@ type Server struct {
 
 	index  *controller.IndexController
 	server *controller.ServerController
+
+	httpServer *http.Server
+	listener   net.Listener
 }
 
 type wrapAssetsFS struct {
@@ -73,10 +78,32 @@ func (s *Server) Start() (err error) {
 	s.cron = cron.New(cron.WithLocation(loc), cron.WithSeconds())
 	s.cron.Start()
 
-	_, err = s.initRouter()
+	engine, err := s.initRouter()
 	if err != nil {
 		return err
 	}
+
+	listen, err := s.settingService.GetListen()
+	if err != nil {
+		return err
+	}
+	port, err := s.settingService.GetPort()
+	if err != nil {
+		return err
+	}
+	listenAddr := net.JoinHostPort(listen, strconv.Itoa(port))
+	listener, err := net.Listen("tcp", listenAddr)
+
+	logger.Info("Web server running HTTP on", listener.Addr())
+	s.listener = listener
+
+	s.httpServer = &http.Server{
+		Handler: engine,
+	}
+
+	go func() {
+		s.httpServer.Serve(listener)
+	}()
 
 	return nil
 }
