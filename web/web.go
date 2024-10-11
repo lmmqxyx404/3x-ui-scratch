@@ -6,6 +6,7 @@ import (
 
 	"x-ui-scratch/config"
 	"x-ui-scratch/logger"
+	"x-ui-scratch/web/middleware"
 	"x-ui-scratch/web/service"
 
 	"github.com/gin-gonic/gin"
@@ -72,6 +73,16 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	}
 
 	engine := gin.Default()
+
+	webDomain, err := s.settingService.GetWebDomain()
+	if err != nil {
+		return nil, err
+	}
+
+	if webDomain != "" {
+		logger.Info("web domain middleware used")
+		engine.Use(middleware.DomainValidatorMiddleware(webDomain))
+	}
 
 	return engine, nil
 }

@@ -46,3 +46,7 @@ func (s *SettingService) getSetting(key string) (string, error) {
 
 	return "setting", nil
 }
+
+func (s *SettingService) GetWebDomain() (string, error) {
+	return s.getString("webDomain")
+}
