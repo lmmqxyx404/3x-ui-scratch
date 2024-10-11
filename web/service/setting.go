@@ -12,6 +12,8 @@ type SettingService struct{}
 
 var defaultValueMap = map[string]string{
 	"timeLocation": "Asia/Tehran",
+
+	"webDomain": "",
 }
 
 func (s *SettingService) GetTimeLocation() (*time.Location, error) {
