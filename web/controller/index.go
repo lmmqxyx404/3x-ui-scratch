@@ -1,6 +1,12 @@
 package controller
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+	"x-ui-scratch/logger"
+	"x-ui-scratch/web/session"
+
+	"github.com/gin-gonic/gin"
+)
 
 type IndexController struct {
 }
@@ -12,9 +18,17 @@ func NewIndexController(g *gin.RouterGroup) *IndexController {
 }
 
 func (a *IndexController) initRouter(g *gin.RouterGroup) {
-	panic("UNIMPLEMENTED")
-	/* g.GET("/", a.index)
-	g.POST("/login", a.login)
+	g.GET("/", a.index)
+	logger.Info("TODO: add more routes")
+	/* g.POST("/login", a.login)
 	g.GET("/logout", a.logout)
 	g.POST("/getSecretStatus", a.getSecretStatus) */
+}
+
+func (a *IndexController) index(c *gin.Context) {
+	if session.IsLogin(c) {
+		c.Redirect(http.StatusTemporaryRedirect, "panel/")
+		return
+	}
+	html(c, "login.html", "pages.login.title", nil)
 }
