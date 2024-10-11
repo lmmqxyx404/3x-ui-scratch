@@ -4,7 +4,7 @@
         {
           // Run whenever html, css, or js files are saved
           "match": "\\.(html|css|js|go)$",
-          "cmd": "air"
+          "cmd": "echo reload"
         }
       ]
     }
