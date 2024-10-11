@@ -34,7 +34,8 @@ type Server struct {
 
 	cron *cron.Cron
 
-	index *controller.IndexController
+	index  *controller.IndexController
+	server *controller.ServerController
 }
 
 type wrapAssetsFS struct {
@@ -163,7 +164,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	g := engine.Group(basePath)
 
 	s.index = controller.NewIndexController(g)
-	// s.server = controller.NewServerController(g)
+	s.server = controller.NewServerController(g)
 	// s.panel = controller.NewXUIController(g)
 	// s.api = controller.NewAPIController(g)
 
@@ -191,4 +192,8 @@ func (s *Server) getHtmlTemplate(funcMap template.FuncMap) (*template.Template, 
 		return nil, err
 	}
 	return t, nil
+}
+
+func (s *Server) GetCron() *cron.Cron {
+	return s.cron
 }
