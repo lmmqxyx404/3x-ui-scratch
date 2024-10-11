@@ -102,3 +102,7 @@ func (s *SettingService) GetBasePath() (string, error) {
 	}
 	return basePath, nil
 }
+
+func (s *SettingService) GetTgLang() (string, error) {
+	return s.getString("tgLang")
+}
