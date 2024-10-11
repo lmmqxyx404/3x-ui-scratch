@@ -1,12 +1,14 @@
 package global
 
+import "github.com/robfig/cron/v3"
+
 var (
 	webServer WebServer
 	subServer SubServer
 )
 
 type WebServer interface {
-	// GetCron() *cron.Cron
+	GetCron() *cron.Cron
 	// GetCtx() context.Context
 }
 
@@ -20,4 +22,8 @@ func SetWebServer(s WebServer) {
 
 func SetSubServer(s SubServer) {
 	subServer = s
+}
+
+func GetWebServer() WebServer {
+	return webServer
 }
