@@ -13,6 +13,8 @@ type ServerController struct {
 	lastGetStatusTime time.Time
 	lastStatus        *service.Status
 	serverService     service.ServerService
+
+	BaseController
 }
 
 func NewServerController(g *gin.RouterGroup) *ServerController {
@@ -27,8 +29,8 @@ func NewServerController(g *gin.RouterGroup) *ServerController {
 func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	g = g.Group("/server")
 	logger.Info("TODO: initRouter")
-	/* g.Use(a.checkLogin)
-	g.POST("/status", a.status)
+	g.Use(a.checkLogin)
+	/*g.POST("/status", a.status)
 	g.POST("/getXrayVersion", a.getXrayVersion)
 	g.POST("/stopXrayService", a.stopXrayService)
 	g.POST("/restartXrayService", a.restartXrayService)
@@ -43,7 +45,7 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 func (a *ServerController) startTask() {
 	webServer := global.GetWebServer()
 	c := webServer.GetCron()
-	c.AddFunc("@every 2s", func() {
+	c.AddFunc("@every 10s", func() {
 		now := time.Now()
 		if now.Sub(a.lastGetStatusTime) > time.Minute*3 {
 			return

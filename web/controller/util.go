@@ -4,6 +4,7 @@ import (
 	"net"
 	"net/http"
 	"x-ui-scratch/config"
+	"x-ui-scratch/web/entity"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,4 +39,15 @@ func getContext(h gin.H) gin.H {
 		a[key] = value
 	}
 	return a
+}
+
+func isAjax(c *gin.Context) bool {
+	return c.GetHeader("X-Requested-With") == "XMLHttpRequest"
+}
+
+func pureJsonMsg(c *gin.Context, statusCode int, success bool, msg string) {
+	c.JSON(statusCode, entity.Msg{
+		Success: success,
+		Msg:     msg,
+	})
 }
