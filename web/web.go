@@ -38,6 +38,7 @@ type Server struct {
 
 	index  *controller.IndexController
 	server *controller.ServerController
+	panel  *controller.XUIController
 
 	httpServer *http.Server
 	listener   net.Listener
@@ -192,7 +193,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 
 	s.index = controller.NewIndexController(g)
 	s.server = controller.NewServerController(g)
-	// s.panel = controller.NewXUIController(g)
+	s.panel = controller.NewXUIController(g)
 	// s.api = controller.NewAPIController(g)
 
 	return engine, nil
