@@ -131,3 +131,7 @@ func (s *SettingService) getInt(key string) (int, error) {
 	}
 	return strconv.Atoi(str)
 }
+
+func (s *SettingService) GetSessionMaxAge() (int, error) {
+	return s.getInt("sessionMaxAge")
+}

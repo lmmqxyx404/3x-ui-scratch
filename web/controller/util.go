@@ -3,7 +3,9 @@ package controller
 import (
 	"net"
 	"net/http"
+	"strings"
 	"x-ui-scratch/config"
+	"x-ui-scratch/logger"
 	"x-ui-scratch/web/entity"
 
 	"github.com/gin-gonic/gin"
@@ -50,4 +52,40 @@ func pureJsonMsg(c *gin.Context, statusCode int, success bool, msg string) {
 		Success: success,
 		Msg:     msg,
 	})
+}
+
+func getRemoteIp(c *gin.Context) string {
+	value := c.GetHeader("X-Real-IP")
+	if value != "" {
+		return value
+	}
+	value = c.GetHeader("X-Forwarded-For")
+	if value != "" {
+		ips := strings.Split(value, ",")
+		return ips[0]
+	}
+	addr := c.Request.RemoteAddr
+	ip, _, _ := net.SplitHostPort(addr)
+	return ip
+}
+
+func jsonMsg(c *gin.Context, msg string, err error) {
+	jsonMsgObj(c, msg, nil, err)
+}
+
+func jsonMsgObj(c *gin.Context, msg string, obj interface{}, err error) {
+	m := entity.Msg{
+		Obj: obj,
+	}
+	if err == nil {
+		m.Success = true
+		if msg != "" {
+			m.Msg = msg + " " + I18nWeb(c, "success")
+		}
+	} else {
+		m.Success = false
+		m.Msg = msg + " " + I18nWeb(c, "fail") + ": " + err.Error()
+		logger.Info(msg+" "+I18nWeb(c, "fail")+": ", err)
+	}
+	c.JSON(http.StatusOK, m)
 }
