@@ -89,3 +89,7 @@ func jsonMsgObj(c *gin.Context, msg string, obj interface{}, err error) {
 	}
 	c.JSON(http.StatusOK, m)
 }
+
+func jsonObj(c *gin.Context, obj interface{}, err error) {
+	jsonMsgObj(c, "", obj, err)
+}

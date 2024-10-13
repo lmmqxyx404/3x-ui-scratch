@@ -32,7 +32,7 @@ func (a *IndexController) initRouter(g *gin.RouterGroup) {
 	logger.Info("TODO: add more routes")
 	g.POST("/login", a.login)
 	// g.GET("/logout", a.logout)
-	// g.POST("/getSecretStatus", a.getSecretStatus)
+	g.POST("/getSecretStatus", a.getSecretStatus)
 }
 
 func (a *IndexController) index(c *gin.Context) {
@@ -92,4 +92,11 @@ func (a *IndexController) login(c *gin.Context) {
 	err = session.SetLoginUser(c, user)
 	logger.Infof("%s logged in successfully", user.Username)
 	jsonMsg(c, I18nWeb(c, "pages.login.toasts.successLogin"), err)
+}
+
+func (a *IndexController) getSecretStatus(c *gin.Context) {
+	status, err := a.settingService.GetSecretStatus()
+	if err == nil {
+		jsonObj(c, status, nil)
+	}
 }
