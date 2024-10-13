@@ -54,6 +54,20 @@ var assetsFS embed.FS
 //go:embed html/*
 var htmlFS embed.FS
 
+func (f *wrapAssetsFS) Open(name string) (fs.File, error) {
+	file, err := f.FS.Open("assets/" + name)
+	if err != nil {
+		return nil, err
+	}
+	return &wrapAssetsFile{
+		File: file,
+	}, nil
+}
+
+type wrapAssetsFile struct {
+	fs.File
+}
+
 func NewServer() *Server {
 	ctx, cancel := context.WithCancel(context.Background())
 
