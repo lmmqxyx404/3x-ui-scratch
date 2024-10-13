@@ -135,3 +135,15 @@ func (s *SettingService) getInt(key string) (int, error) {
 func (s *SettingService) GetSessionMaxAge() (int, error) {
 	return s.getInt("sessionMaxAge")
 }
+
+func (s *SettingService) GetSecretStatus() (bool, error) {
+	return s.getBool("secretEnable")
+}
+
+func (s *SettingService) getBool(key string) (bool, error) {
+	str, err := s.getString(key)
+	if err != nil {
+		return false, err
+	}
+	return strconv.ParseBool(str)
+}
