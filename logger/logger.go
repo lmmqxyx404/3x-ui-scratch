@@ -43,3 +43,13 @@ func addToBuffer(level string, newLog string) {
 		log:   newLog,
 	})
 }
+
+func Warningf(format string, args ...interface{}) {
+	logger.Warningf(format, args...)
+	addToBuffer("WARNING", fmt.Sprintf(format, args...))
+}
+
+func Infof(format string, args ...interface{}) {
+	logger.Infof(format, args...)
+	addToBuffer("INFO", fmt.Sprintf(format, args...))
+}

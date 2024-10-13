@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	loginUser = "LOGIN_USER"
-	// defaultPath = "/"
+	loginUser   = "LOGIN_USER"
+	defaultPath = "/"
 )
 
 func IsLogin(c *gin.Context) bool {
@@ -27,4 +27,20 @@ func GetLoginUser(c *gin.Context) *model.User {
 		return nil
 	}
 	return &user
+}
+
+func SetMaxAge(c *gin.Context, maxAge int) error {
+	s := sessions.Default(c)
+	s.Options(sessions.Options{
+		Path:     defaultPath,
+		MaxAge:   maxAge,
+		HttpOnly: true,
+	})
+	return s.Save()
+}
+
+func SetLoginUser(c *gin.Context, user *model.User) error {
+	s := sessions.Default(c)
+	s.Set(loginUser, user)
+	return s.Save()
 }
