@@ -2,6 +2,7 @@ package session
 
 import (
 	"x-ui-scratch/database/model"
+	"x-ui-scratch/logger"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -42,5 +43,6 @@ func SetMaxAge(c *gin.Context, maxAge int) error {
 func SetLoginUser(c *gin.Context, user *model.User) error {
 	s := sessions.Default(c)
 	s.Set(loginUser, user)
+	logger.Info("SetLoginUser")
 	return s.Save()
 }

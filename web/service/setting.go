@@ -26,6 +26,8 @@ var defaultValueMap = map[string]string{
 
 	"webListen": "",
 	"webPort":   "2054",
+
+	"secretEnable": "false",
 }
 
 func (s *SettingService) GetTimeLocation() (*time.Location, error) {
@@ -43,6 +45,7 @@ func (s *SettingService) GetTimeLocation() (*time.Location, error) {
 }
 
 func (s *SettingService) getString(key string) (string, error) {
+	logger.Info(key)
 	setting, err := s.getSetting(key)
 	if database.IsNotFound(err) {
 		value, ok := defaultValueMap[key]
@@ -141,8 +144,10 @@ func (s *SettingService) GetSecretStatus() (bool, error) {
 }
 
 func (s *SettingService) getBool(key string) (bool, error) {
+	logger.Info("haha")
 	str, err := s.getString(key)
 	if err != nil {
+		logger.Info("haha2")
 		return false, err
 	}
 	return strconv.ParseBool(str)
