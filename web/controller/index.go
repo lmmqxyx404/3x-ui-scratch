@@ -90,6 +90,9 @@ func (a *IndexController) login(c *gin.Context) {
 	}
 
 	err = session.SetLoginUser(c, user)
+	if err != nil {
+		logger.Info("can not SetLoginUser")
+	}
 	logger.Infof("%s logged in successfully", user.Username)
 	jsonMsg(c, I18nWeb(c, "pages.login.toasts.successLogin"), err)
 }
