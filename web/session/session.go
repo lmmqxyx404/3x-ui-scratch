@@ -1,6 +1,7 @@
 package session
 
 import (
+	"encoding/gob"
 	"x-ui-scratch/database/model"
 	"x-ui-scratch/logger"
 
@@ -45,4 +46,8 @@ func SetLoginUser(c *gin.Context, user *model.User) error {
 	s.Set(loginUser, user)
 	logger.Info("SetLoginUser")
 	return s.Save()
+}
+
+func init() {
+	gob.Register(model.User{})
 }
