@@ -4,6 +4,7 @@ import (
 	"runtime"
 	"time"
 	"x-ui-scratch/logger"
+	"x-ui-scratch/xray"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-// p *xray.Process
+	p *xray.Process
 )
 
 type Status struct {
@@ -82,8 +83,11 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 	}
 
 	status.LogicalPro = runtime.NumCPU()
-	// todo
-	status.AppStats.Uptime = 0
+	if p != nil && p.IsRunning() {
+		status.AppStats.Uptime = p.GetUptime()
+	} else {
+		status.AppStats.Uptime = 0
+	}
 
 	cpuInfos, err := cpu.Info()
 	if err != nil {
