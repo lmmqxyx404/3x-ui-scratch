@@ -407,8 +407,11 @@
             this.uptime = data.uptime;
             this.appUptime = data.appUptime;
             this.appStats = data.appStats;
-            this.xray = data.xray;
-            switch (this.xray.state) {
+            this.xray.color="gray"
+            /* this.xray = data.xray;
+            // todo: delete
+            if(this.xray)
+            switch (this.xray.state??'todo') {
                 case State.Running:
                     this.xray.color = "green";
                     break;
@@ -420,7 +423,7 @@
                     break;
                 default:
                     this.xray.color = "gray";
-            }
+            } */
         }
     }
 

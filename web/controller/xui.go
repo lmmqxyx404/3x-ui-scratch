@@ -7,6 +7,7 @@ import (
 )
 
 type XUIController struct {
+	BaseController
 }
 
 func NewXUIController(g *gin.RouterGroup) *XUIController {
@@ -17,7 +18,7 @@ func NewXUIController(g *gin.RouterGroup) *XUIController {
 
 func (a *XUIController) initRouter(g *gin.RouterGroup) {
 	g = g.Group("/panel")
-	/* g.Use(a.checkLogin)*/
+	g.Use(a.checkLogin)
 	g.GET("/", a.index)
 	logger.Info("TODO: add init router")
 }
