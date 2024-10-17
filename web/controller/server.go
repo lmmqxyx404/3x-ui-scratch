@@ -30,8 +30,8 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	g = g.Group("/server")
 	logger.Info("TODO: initRouter")
 	g.Use(a.checkLogin)
-	/*g.POST("/status", a.status)
-	g.POST("/getXrayVersion", a.getXrayVersion)
+	g.POST("/status", a.status)
+	/* g.POST("/getXrayVersion", a.getXrayVersion)
 	g.POST("/stopXrayService", a.stopXrayService)
 	g.POST("/restartXrayService", a.restartXrayService)
 	g.POST("/installXray/:version", a.installXray)
@@ -56,4 +56,10 @@ func (a *ServerController) startTask() {
 
 func (a *ServerController) refreshStatus() {
 	a.lastStatus = a.serverService.GetStatus(a.lastStatus)
+}
+
+func (a *ServerController) status(c *gin.Context) {
+	a.lastGetStatusTime = time.Now()
+
+	jsonObj(c, a.lastStatus, nil)
 }
