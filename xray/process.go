@@ -12,6 +12,9 @@ type Process struct {
 type process struct {
 	cmd       *exec.Cmd
 	startTime time.Time
+
+	exitErr   error
+	logWriter *LogWriter
 }
 
 func (p *process) IsRunning() bool {
@@ -26,4 +29,15 @@ func (p *process) IsRunning() bool {
 
 func (p *Process) GetUptime() uint64 {
 	return uint64(time.Since(p.startTime).Seconds())
+}
+
+func (p *process) GetErr() error {
+	return p.exitErr
+}
+
+func (p *process) GetResult() string {
+	if len(p.logWriter.lastLine) == 0 && p.exitErr != nil {
+		return p.exitErr.Error()
+	}
+	return p.logWriter.lastLine
 }

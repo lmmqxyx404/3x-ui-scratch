@@ -17,8 +17,18 @@ import (
 	"github.com/shirou/gopsutil/v4/net"
 )
 
+type ProcessState string
+
+const (
+	Running ProcessState = "running"
+	Stop    ProcessState = "stop"
+	Error   ProcessState = "error"
+)
+
 var (
 	p *xray.Process
+
+	result string
 )
 
 type Status struct {
@@ -39,6 +49,11 @@ type Status struct {
 		Current uint64 `json:"current"`
 		Total   uint64 `json:"total"`
 	} `json:"disk"`
+	Xray struct {
+		State    ProcessState `json:"state"`
+		ErrorMsg string       `json:"errorMsg"`
+		Version  string       `json:"version"`
+	} `json:"xray"`
 	Uptime   uint64    `json:"uptime"`
 	Loads    []float64 `json:"loads"`
 	TcpCount int       `json:"tcpCount"`
@@ -63,7 +78,7 @@ type Status struct {
 }
 
 type ServerService struct {
-	// xrayService    XrayService
+	xrayService XrayService
 	// inboundService InboundService
 }
 
@@ -168,6 +183,18 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 	status.PublicIP.IPv4 = getPublicIP("https://api.ipify.org")
 	status.PublicIP.IPv6 = getPublicIP("https://api6.ipify.org")
 
+	if s.xrayService.IsXrayRunning() {
+		status.Xray.State = Running
+		status.Xray.ErrorMsg = ""
+	} else {
+		err := s.xrayService.GetXrayErr()
+		if err != nil {
+			status.Xray.State = Error
+		} else {
+			status.Xray.State = Stop
+		}
+		status.Xray.ErrorMsg = s.xrayService.GetXrayResult()
+	}
 	return status
 }
 
