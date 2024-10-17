@@ -180,6 +180,11 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		logger.Warning("get tcp connections failed:", err)
 	}
 
+	status.UdpCount, err = sys.GetUDPCount()
+	if err != nil {
+		logger.Warning("get udp connections failed:", err)
+	}
+
 	status.PublicIP.IPv4 = getPublicIP("https://api.ipify.org")
 	status.PublicIP.IPv6 = getPublicIP("https://api6.ipify.org")
 
@@ -194,6 +199,17 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 			status.Xray.State = Stop
 		}
 		status.Xray.ErrorMsg = s.xrayService.GetXrayResult()
+	}
+	status.Xray.Version = s.xrayService.GetXrayVersion()
+	var rtm runtime.MemStats
+	runtime.ReadMemStats(&rtm)
+	status.AppStats.Mem = rtm.Sys
+	status.AppStats.Threads = uint32(runtime.NumGoroutine())
+
+	if p != nil && p.IsRunning() {
+		status.AppStats.Uptime = p.GetUptime()
+	} else {
+		status.AppStats.Uptime = 0
 	}
 	return status
 }
