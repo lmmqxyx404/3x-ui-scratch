@@ -30,3 +30,10 @@ func (s *XrayService) GetXrayResult() string {
 	result = p.GetResult()
 	return result
 }
+
+func (s *XrayService) GetXrayVersion() string {
+	if p == nil {
+		return "Unknown"
+	}
+	return p.GetVersion()
+}

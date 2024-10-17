@@ -15,6 +15,8 @@ type process struct {
 
 	exitErr   error
 	logWriter *LogWriter
+
+	version string
 }
 
 func (p *process) IsRunning() bool {
@@ -40,4 +42,8 @@ func (p *process) GetResult() string {
 		return p.exitErr.Error()
 	}
 	return p.logWriter.lastLine
+}
+
+func (p *process) GetVersion() string {
+	return p.version
 }
