@@ -1,9 +1,12 @@
 package service
 
 import (
+	"io"
+	"net/http"
 	"runtime"
 	"time"
 	"x-ui-scratch/logger"
+	"x-ui-scratch/util/sys"
 	"x-ui-scratch/xray"
 
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -157,5 +160,33 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		logger.Warning("can not find io counters")
 	}
 
+	status.TcpCount, err = sys.GetTCPCount()
+	if err != nil {
+		logger.Warning("get tcp connections failed:", err)
+	}
+
+	status.PublicIP.IPv4 = getPublicIP("https://api.ipify.org")
+	status.PublicIP.IPv6 = getPublicIP("https://api6.ipify.org")
+
 	return status
+}
+
+func getPublicIP(url string) string {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "N/A"
+	}
+	defer resp.Body.Close()
+
+	ip, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "N/A"
+	}
+
+	ipString := string(ip)
+	if ipString == "" {
+		return "N/A"
+	}
+
+	return ipString
 }
