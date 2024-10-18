@@ -15,6 +15,9 @@ type ServerController struct {
 	serverService     service.ServerService
 
 	BaseController
+
+	lastGetVersionsTime time.Time
+	lastVersions        []string
 }
 
 func NewServerController(g *gin.RouterGroup) *ServerController {
@@ -31,8 +34,8 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	logger.Info("TODO: initRouter")
 	g.Use(a.checkLogin)
 	g.POST("/status", a.status)
-	/* g.POST("/getXrayVersion", a.getXrayVersion)
-	g.POST("/stopXrayService", a.stopXrayService)
+	g.POST("/getXrayVersion", a.getXrayVersion)
+	/* g.POST("/stopXrayService", a.stopXrayService)
 	g.POST("/restartXrayService", a.restartXrayService)
 	g.POST("/installXray/:version", a.installXray)
 	g.POST("/logs/:count", a.getLogs)
@@ -62,4 +65,23 @@ func (a *ServerController) status(c *gin.Context) {
 	a.lastGetStatusTime = time.Now()
 
 	jsonObj(c, a.lastStatus, nil)
+}
+
+func (a *ServerController) getXrayVersion(c *gin.Context) {
+	now := time.Now()
+	if now.Sub(a.lastGetVersionsTime) <= time.Minute {
+		jsonObj(c, a.lastVersions, nil)
+		return
+	}
+
+	versions, err := a.serverService.GetXrayVersions()
+	if err != nil {
+		jsonMsg(c, I18nWeb(c, "getVersion"), err)
+		return
+	}
+
+	a.lastVersions = versions
+	a.lastGetVersionsTime = time.Now()
+
+	jsonObj(c, versions, nil)
 }
