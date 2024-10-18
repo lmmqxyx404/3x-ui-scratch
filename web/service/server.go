@@ -1,6 +1,8 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"net/http"
 	"runtime"
@@ -80,6 +82,10 @@ type Status struct {
 type ServerService struct {
 	xrayService XrayService
 	// inboundService InboundService
+}
+
+type Release struct {
+	TagName string `json:"tag_name"`
 }
 
 func (s *ServerService) GetStatus(lastStatus *Status) *Status {
@@ -232,4 +238,33 @@ func getPublicIP(url string) string {
 	}
 
 	return ipString
+}
+
+func (s *ServerService) GetXrayVersions() ([]string, error) {
+	url := "https://api.github.com/repos/XTLS/Xray-core/releases"
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	buffer := bytes.NewBuffer(make([]byte, 8192))
+	buffer.Reset()
+	_, err = buffer.ReadFrom(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	releases := make([]Release, 0)
+	err = json.Unmarshal(buffer.Bytes(), &releases)
+	if err != nil {
+		return nil, err
+	}
+	var versions []string
+	for _, release := range releases {
+		if release.TagName >= "v1.7.5" {
+			versions = append(versions, release.TagName)
+		}
+	}
+	return versions, nil
 }
