@@ -58,3 +58,13 @@ func Warning(args ...interface{}) {
 	logger.Warning(args...)
 	addToBuffer("WARNING", fmt.Sprint(args...))
 }
+
+func Debug(args ...interface{}) {
+	logger.Debug(args...)
+	addToBuffer("DEBUG", fmt.Sprint(args...))
+}
+
+func Error(args ...interface{}) {
+	logger.Error(args...)
+	addToBuffer("ERROR", fmt.Sprint(args...))
+}
