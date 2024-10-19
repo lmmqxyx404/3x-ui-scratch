@@ -1,7 +1,9 @@
 package xray
 
 import (
+	"errors"
 	"os/exec"
+	"syscall"
 	"time"
 )
 
@@ -46,4 +48,11 @@ func (p *process) GetResult() string {
 
 func (p *process) GetVersion() string {
 	return p.version
+}
+
+func (p *process) Stop() error {
+	if !p.IsRunning() {
+		return errors.New("xray is not running")
+	}
+	return p.cmd.Process.Signal(syscall.SIGTERM)
 }

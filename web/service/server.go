@@ -9,7 +9,6 @@ import (
 	"time"
 	"x-ui-scratch/logger"
 	"x-ui-scratch/util/sys"
-	"x-ui-scratch/xray"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -25,12 +24,6 @@ const (
 	Running ProcessState = "running"
 	Stop    ProcessState = "stop"
 	Error   ProcessState = "error"
-)
-
-var (
-	p *xray.Process
-
-	result string
 )
 
 type Status struct {
@@ -267,4 +260,14 @@ func (s *ServerService) GetXrayVersions() ([]string, error) {
 		}
 	}
 	return versions, nil
+}
+
+func (s *ServerService) StopXrayService() (string error) {
+	err := s.xrayService.StopXray()
+	if err != nil {
+		logger.Error("stop xray failed:", err)
+		return err
+	}
+
+	return nil
 }

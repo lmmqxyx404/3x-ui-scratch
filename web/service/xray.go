@@ -1,10 +1,24 @@
 package service
 
+import (
+	"errors"
+	"sync"
+	"x-ui-scratch/logger"
+	"x-ui-scratch/xray"
+)
+
 type XrayService struct {
 	/* inboundService InboundService
 	settingService SettingService
 	xrayAPI        xray.XrayAPI */
 }
+
+var (
+	p *xray.Process
+
+	result string
+	lock   sync.Mutex
+)
 
 func (s *XrayService) IsXrayRunning() bool {
 	return p != nil && p.IsRunning()
@@ -36,4 +50,14 @@ func (s *XrayService) GetXrayVersion() string {
 		return "Unknown"
 	}
 	return p.GetVersion()
+}
+
+func (s *XrayService) StopXray() error {
+	lock.Lock()
+	defer lock.Unlock()
+	logger.Debug("Attempting to stop Xray...")
+	if s.IsXrayRunning() {
+		return p.Stop()
+	}
+	return errors.New("xray is not running")
 }
