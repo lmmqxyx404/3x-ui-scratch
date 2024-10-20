@@ -1,10 +1,14 @@
 package service
 
 import (
+	"archive/zip"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 	"x-ui-scratch/logger"
@@ -270,4 +274,104 @@ func (s *ServerService) StopXrayService() (string error) {
 	}
 
 	return nil
+}
+
+func (s *ServerService) UpdateXray(version string) error {
+	zipFileName, err := s.downloadXRay(version)
+	if err != nil {
+		return err
+	}
+
+	zipFile, err := os.Open(zipFileName)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		zipFile.Close()
+		os.Remove(zipFileName)
+	}()
+
+	stat, err := zipFile.Stat()
+	if err != nil {
+		return err
+	}
+	reader, err := zip.NewReader(zipFile, stat.Size())
+	if err != nil {
+		return err
+	}
+
+	s.xrayService.StopXray()
+	defer func() {
+		err := s.xrayService.RestartXray(true)
+		if err != nil {
+			logger.Error("start xray failed:", err)
+		}
+	}()
+
+	copyZipFile := func(zipName string, fileName string) error {
+		zipFile, err := reader.Open(zipName)
+		if err != nil {
+			return err
+		}
+		os.Remove(fileName)
+		file, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR|os.O_TRUNC, fs.ModePerm)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		_, err = io.Copy(file, zipFile)
+		return err
+	}
+
+	println(copyZipFile)
+	panic("tood")
+}
+
+func (s *ServerService) downloadXRay(version string) (string, error) {
+	osName := runtime.GOOS
+	arch := runtime.GOARCH
+
+	switch osName {
+	case "darwin":
+		osName = "macos"
+	}
+
+	switch arch {
+	case "amd64":
+		arch = "64"
+	case "arm64":
+		arch = "arm64-v8a"
+	case "armv7":
+		arch = "arm32-v7a"
+	case "armv6":
+		arch = "arm32-v6"
+	case "armv5":
+		arch = "arm32-v5"
+	case "386":
+		arch = "32"
+	case "s390x":
+		arch = "s390x"
+	}
+
+	fileName := fmt.Sprintf("Xray-%s-%s.zip", osName, arch)
+	url := fmt.Sprintf("https://github.com/XTLS/Xray-core/releases/download/%s/%s", version, fileName)
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	os.Remove(fileName)
+	file, err := os.Create(fileName)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return fileName, nil
 }
