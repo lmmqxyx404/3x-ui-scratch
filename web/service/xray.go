@@ -61,3 +61,11 @@ func (s *XrayService) StopXray() error {
 	}
 	return errors.New("xray is not running")
 }
+
+func (s *XrayService) RestartXray(isForce bool) error {
+	lock.Lock()
+	defer lock.Unlock()
+	logger.Debug("restart xray, force:", isForce)
+
+	panic("todo")
+}
