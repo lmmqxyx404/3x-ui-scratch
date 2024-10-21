@@ -13,6 +13,7 @@ import (
 	"time"
 	"x-ui-scratch/logger"
 	"x-ui-scratch/util/sys"
+	"x-ui-scratch/xray"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -323,8 +324,12 @@ func (s *ServerService) UpdateXray(version string) error {
 		return err
 	}
 
-	println(copyZipFile)
-	panic("tood")
+	err = copyZipFile("xray", xray.GetBinaryPath())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *ServerService) downloadXRay(version string) (string, error) {
