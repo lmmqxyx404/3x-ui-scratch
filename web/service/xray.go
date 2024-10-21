@@ -8,8 +8,9 @@ import (
 )
 
 type XrayService struct {
-	/* inboundService InboundService
 	settingService SettingService
+
+	/* inboundService InboundService
 	xrayAPI        xray.XrayAPI */
 }
 
@@ -67,5 +68,20 @@ func (s *XrayService) RestartXray(isForce bool) error {
 	defer lock.Unlock()
 	logger.Debug("restart xray, force:", isForce)
 
-	panic("todo")
+	xrayConfig, err := s.GetXrayConfig()
+	if err != nil {
+		return err
+	}
+	println(xrayConfig)
+	panic("todo RestartXray")
+}
+
+func (s *XrayService) GetXrayConfig() (*xray.Config, error) {
+	templateConfig, err := s.settingService.GetXrayConfigTemplate()
+	if err != nil {
+		return nil, err
+	}
+
+	println(templateConfig)
+	panic("todo GetXrayConfig")
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	_ "embed"
 	"strconv"
 	"strings"
 	"time"
@@ -27,8 +28,12 @@ var defaultValueMap = map[string]string{
 	"webListen": "",
 	"webPort":   "2054",
 
-	"secretEnable": "false",
+	"secretEnable":       "false",
+	"xrayTemplateConfig": xrayTemplateConfig,
 }
+
+//go:embed config.json
+var xrayTemplateConfig string
 
 func (s *SettingService) GetTimeLocation() (*time.Location, error) {
 	l, err := s.getString("timeLocation")
@@ -151,4 +156,8 @@ func (s *SettingService) getBool(key string) (bool, error) {
 		return false, err
 	}
 	return strconv.ParseBool(str)
+}
+
+func (s *SettingService) GetXrayConfigTemplate() (string, error) {
+	return s.getString("xrayTemplateConfig")
 }
