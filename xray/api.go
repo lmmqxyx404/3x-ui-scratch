@@ -1,5 +1,5 @@
 package xray
 
 // todo
-type Config struct {
+type XrayAPI struct {
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"sync"
 	"x-ui-scratch/logger"
@@ -8,10 +9,10 @@ import (
 )
 
 type XrayService struct {
+	inboundService InboundService
 	settingService SettingService
 
-	/* inboundService InboundService
-	xrayAPI        xray.XrayAPI */
+	/*	xrayAPI        xray.XrayAPI */
 }
 
 var (
@@ -82,6 +83,14 @@ func (s *XrayService) GetXrayConfig() (*xray.Config, error) {
 		return nil, err
 	}
 
-	println(templateConfig)
+	xrayConfig := &xray.Config{}
+	err = json.Unmarshal([]byte(templateConfig), xrayConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	s.inboundService.AddTraffic(nil, nil)
+
+	// println(templateConfig)
 	panic("todo GetXrayConfig")
 }
