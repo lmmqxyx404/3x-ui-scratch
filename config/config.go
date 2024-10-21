@@ -62,19 +62,16 @@ func GetDBFolderPath() string {
 	return dbFolderPath
 }
 
-/*
 func GetBinFolderPath() string {
 	binFolderPath := os.Getenv("XUI_BIN_FOLDER")
 	if binFolderPath == "" {
-		binFolderPath = "bin"
+		// TODO
+		binFolderPath = "./bin"
 	}
 	return binFolderPath
 }
 
-
-
-
-
+/*
 func GetLogFolder() string {
 	logFolderPath := os.Getenv("XUI_LOG_FOLDER")
 	if logFolderPath == "" {

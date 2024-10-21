@@ -2,9 +2,12 @@ package xray
 
 import (
 	"errors"
+	"fmt"
 	"os/exec"
+	"runtime"
 	"syscall"
 	"time"
+	"x-ui-scratch/config"
 )
 
 type Process struct {
@@ -55,4 +58,12 @@ func (p *process) Stop() error {
 		return errors.New("xray is not running")
 	}
 	return p.cmd.Process.Signal(syscall.SIGTERM)
+}
+
+func GetBinaryPath() string {
+	return config.GetBinFolderPath() + "/" + GetBinaryName()
+}
+
+func GetBinaryName() string {
+	return fmt.Sprintf("xray-%s-%s", runtime.GOOS, runtime.GOARCH)
 }
