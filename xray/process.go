@@ -21,7 +21,8 @@ type process struct {
 	exitErr   error
 	logWriter *LogWriter
 
-	version string
+	version       string
+	onlineClients []string
 }
 
 func (p *process) IsRunning() bool {
@@ -66,4 +67,8 @@ func GetBinaryPath() string {
 
 func GetBinaryName() string {
 	return fmt.Sprintf("xray-%s-%s", runtime.GOOS, runtime.GOARCH)
+}
+
+func (p *Process) SetOnlineClients(users []string) {
+	p.onlineClients = users
 }
