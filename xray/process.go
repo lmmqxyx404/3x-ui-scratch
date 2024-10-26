@@ -23,6 +23,8 @@ type process struct {
 
 	version       string
 	onlineClients []string
+
+	apiPort int
 }
 
 func (p *process) IsRunning() bool {
@@ -71,4 +73,8 @@ func GetBinaryName() string {
 
 func (p *Process) SetOnlineClients(users []string) {
 	p.onlineClients = users
+}
+
+func (p *Process) GetAPIPort() int {
+	return p.apiPort
 }
