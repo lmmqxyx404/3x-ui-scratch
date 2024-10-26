@@ -36,6 +36,8 @@ func (s *InboundService) AddTraffic(inboundTraffics []*xray.Traffic, clientTraff
 		return err, false
 	}
 
+	needRestart0, count, err := s.autoRenewClients(tx)
+	println(needRestart0, count)
 	panic("todo AddTraffic")
 }
 
@@ -168,4 +170,38 @@ func (s *InboundService) adjustTraffics(tx *gorm.DB, dbClientTraffics []*xray.Cl
 	}
 
 	return dbClientTraffics, nil
+}
+
+func (s *InboundService) autoRenewClients(tx *gorm.DB) (bool, int64, error) {
+	// check for time expired
+	var traffics []*xray.ClientTraffic
+	now := time.Now().Unix() * 1000
+	var err error
+
+	err = tx.Model(xray.ClientTraffic{}).Where("reset > 0 and expiry_time > 0 and expiry_time <= ?", now).Find(&traffics).Error
+	if err != nil {
+		return false, 0, err
+	}
+	// return if there is no client to renew
+	if len(traffics) == 0 {
+		return false, 0, nil
+	}
+
+	var inbound_ids []int
+	var inbounds []*model.Inbound
+	/* needRestart := false
+	var clientsToAdd []struct {
+		protocol string
+		tag      string
+		client   map[string]interface{}
+	} */
+
+	for _, traffic := range traffics {
+		inbound_ids = append(inbound_ids, traffic.InboundId)
+	}
+	err = tx.Model(model.Inbound{}).Where("id IN ?", inbound_ids).Find(&inbounds).Error
+	if err != nil {
+		return false, 0, err
+	}
+	panic("TODO autoRenewClients")
 }
