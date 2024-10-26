@@ -176,7 +176,7 @@ func (s *InboundService) autoRenewClients(tx *gorm.DB) (bool, int64, error) {
 	// check for time expired
 	var traffics []*xray.ClientTraffic
 	now := time.Now().Unix() * 1000
-	var err error
+	var err, err1 error
 
 	err = tx.Model(xray.ClientTraffic{}).Where("reset > 0 and expiry_time > 0 and expiry_time <= ?", now).Find(&traffics).Error
 	if err != nil {
@@ -189,12 +189,11 @@ func (s *InboundService) autoRenewClients(tx *gorm.DB) (bool, int64, error) {
 
 	var inbound_ids []int
 	var inbounds []*model.Inbound
-	/* needRestart := false
 	var clientsToAdd []struct {
 		protocol string
 		tag      string
 		client   map[string]interface{}
-	} */
+	}
 
 	for _, traffic := range traffics {
 		inbound_ids = append(inbound_ids, traffic.InboundId)
@@ -203,5 +202,72 @@ func (s *InboundService) autoRenewClients(tx *gorm.DB) (bool, int64, error) {
 	if err != nil {
 		return false, 0, err
 	}
-	panic("TODO autoRenewClients")
+
+	for inbound_index := range inbounds {
+		settings := map[string]interface{}{}
+		json.Unmarshal([]byte(inbounds[inbound_index].Settings), &settings)
+		clients := settings["clients"].([]interface{})
+
+		for client_index := range clients {
+			c := clients[client_index].(map[string]interface{})
+			for traffic_index, traffic := range traffics {
+				if traffic.Email == c["email"].(string) {
+					newExpiryTime := traffic.ExpiryTime
+					for newExpiryTime < now {
+						newExpiryTime += (int64(traffic.Reset) * 86400000)
+					}
+					c["expiryTime"] = newExpiryTime
+					traffics[traffic_index].ExpiryTime = newExpiryTime
+					traffics[traffic_index].Down = 0
+					traffics[traffic_index].Up = 0
+					if !traffic.Enable {
+						traffics[traffic_index].Enable = true
+						clientsToAdd = append(clientsToAdd,
+							struct {
+								protocol string
+								tag      string
+								client   map[string]interface{}
+							}{
+								protocol: string(inbounds[inbound_index].Protocol),
+								tag:      inbounds[inbound_index].Tag,
+								client:   c,
+							})
+					}
+					clients[client_index] = interface{}(c)
+					break
+				}
+			}
+		}
+		settings["clients"] = clients
+		newSettings, err := json.MarshalIndent(settings, "", "  ")
+		if err != nil {
+			return false, 0, err
+		}
+		inbounds[inbound_index].Settings = string(newSettings)
+	}
+	err = tx.Save(inbounds).Error
+	if err != nil {
+		return false, 0, err
+	}
+	err = tx.Save(traffics).Error
+	if err != nil {
+		return false, 0, err
+	}
+	needRestart := false
+
+	if p != nil {
+		err1 = s.xrayApi.Init(p.GetAPIPort())
+		if err1 != nil {
+			return true, int64(len(traffics)), nil
+		}
+		for _, clientToAdd := range clientsToAdd {
+			err1 = s.xrayApi.AddUser(clientToAdd.protocol, clientToAdd.tag, clientToAdd.client)
+			if err1 != nil {
+				needRestart = true
+			}
+		}
+		s.xrayApi.Close()
+	}
+
+	return needRestart, int64(len(traffics)), nil
 }
