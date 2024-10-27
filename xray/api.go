@@ -108,5 +108,10 @@ func (x *XrayAPI) AddUser(Protocol string, inboundTag string, user map[string]in
 }
 
 func (x *XrayAPI) Close() {
-	panic("TODO Close")
+	if x.grpcClient != nil {
+		x.grpcClient.Close()
+	}
+	x.HandlerServiceClient = nil
+	x.StatsServiceClient = nil
+	x.isConnected = false
 }
