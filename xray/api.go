@@ -3,6 +3,7 @@ package xray
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/xtls/xray-core/app/proxyman/command"
 	statsService "github.com/xtls/xray-core/app/stats/command"
@@ -114,4 +115,30 @@ func (x *XrayAPI) Close() {
 	x.HandlerServiceClient = nil
 	x.StatsServiceClient = nil
 	x.isConnected = false
+}
+
+func (x *XrayAPI) RemoveUser(inboundTag, email string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	op := &command.RemoveUserOperation{Email: email}
+	req := &command.AlterInboundRequest{
+		Tag:       inboundTag,
+		Operation: serial.ToTypedMessage(op),
+	}
+
+	_, err := (*x.HandlerServiceClient).AlterInbound(ctx, req)
+	if err != nil {
+		return fmt.Errorf("failed to remove user: %w", err)
+	}
+
+	return nil
+}
+
+func (x *XrayAPI) DelInbound(tag string) error {
+	client := *x.HandlerServiceClient
+	_, err := client.RemoveInbound(context.Background(), &command.RemoveInboundRequest{
+		Tag: tag,
+	})
+	return err
 }

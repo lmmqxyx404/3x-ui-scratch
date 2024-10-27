@@ -68,3 +68,8 @@ func Error(args ...interface{}) {
 	logger.Error(args...)
 	addToBuffer("ERROR", fmt.Sprint(args...))
 }
+
+func Debugf(format string, args ...interface{}) {
+	logger.Debugf(format, args...)
+	addToBuffer("DEBUG", fmt.Sprintf(format, args...))
+}
