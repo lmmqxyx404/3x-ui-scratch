@@ -37,8 +37,27 @@ func (s *InboundService) AddTraffic(inboundTraffics []*xray.Traffic, clientTraff
 	}
 
 	needRestart0, count, err := s.autoRenewClients(tx)
-	println(needRestart0, count)
-	panic("todo AddTraffic")
+	if err != nil {
+		logger.Warning("Error in renew clients:", err)
+	} else if count > 0 {
+		logger.Debugf("%v clients renewed", count)
+	}
+
+	needRestart1, count, err := s.disableInvalidClients(tx)
+	if err != nil {
+		logger.Warning("Error in disabling invalid clients:", err)
+	} else if count > 0 {
+		logger.Debugf("%v clients disabled", count)
+	}
+
+	needRestart2, count, err := s.disableInvalidInbounds(tx)
+	if err != nil {
+		logger.Warning("Error in disabling invalid inbounds:", err)
+	} else if count > 0 {
+		logger.Debugf("%v inbounds disabled", count)
+	}
+	return nil, (needRestart0 || needRestart1 || needRestart2)
+
 }
 
 func (s *InboundService) addInboundTraffic(tx *gorm.DB, traffics []*xray.Traffic) error {
@@ -270,4 +289,76 @@ func (s *InboundService) autoRenewClients(tx *gorm.DB) (bool, int64, error) {
 	}
 
 	return needRestart, int64(len(traffics)), nil
+}
+
+func (s *InboundService) disableInvalidClients(tx *gorm.DB) (bool, int64, error) {
+	now := time.Now().Unix() * 1000
+	needRestart := false
+
+	if p != nil {
+		var results []struct {
+			Tag   string
+			Email string
+		}
+
+		err := tx.Table("inbounds").
+			Select("inbounds.tag, client_traffics.email").
+			Joins("JOIN client_traffics ON inbounds.id = client_traffics.inbound_id").
+			Where("((client_traffics.total > 0 AND client_traffics.up + client_traffics.down >= client_traffics.total) OR (client_traffics.expiry_time > 0 AND client_traffics.expiry_time <= ?)) AND client_traffics.enable = ?", now, true).
+			Scan(&results).Error
+		if err != nil {
+			return false, 0, err
+		}
+		s.xrayApi.Init(p.GetAPIPort())
+		for _, result := range results {
+			err1 := s.xrayApi.RemoveUser(result.Tag, result.Email)
+			if err1 == nil {
+				logger.Debug("Client disabled by api:", result.Email)
+			} else {
+				logger.Debug("Error in disabling client by api:", err1)
+				needRestart = true
+			}
+		}
+		s.xrayApi.Close()
+	}
+	result := tx.Model(xray.ClientTraffic{}).
+		Where("((total > 0 and up + down >= total) or (expiry_time > 0 and expiry_time <= ?)) and enable = ?", now, true).
+		Update("enable", false)
+	err := result.Error
+	count := result.RowsAffected
+	return needRestart, count, err
+}
+
+func (s *InboundService) disableInvalidInbounds(tx *gorm.DB) (bool, int64, error) {
+	now := time.Now().Unix() * 1000
+	needRestart := false
+
+	if p != nil {
+		var tags []string
+		err := tx.Table("inbounds").
+			Select("inbounds.tag").
+			Where("((total > 0 and up + down >= total) or (expiry_time > 0 and expiry_time <= ?)) and enable = ?", now, true).
+			Scan(&tags).Error
+		if err != nil {
+			return false, 0, err
+		}
+		s.xrayApi.Init(p.GetAPIPort())
+		for _, tag := range tags {
+			err1 := s.xrayApi.DelInbound(tag)
+			if err1 == nil {
+				logger.Debug("Inbound disabled by api:", tag)
+			} else {
+				logger.Debug("Error in disabling inbound by api:", err1)
+				needRestart = true
+			}
+		}
+		s.xrayApi.Close()
+	}
+
+	result := tx.Model(model.Inbound{}).
+		Where("((total > 0 and up + down >= total) or (expiry_time > 0 and expiry_time <= ?)) and enable = ?", now, true).
+		Update("enable", false)
+	err := result.Error
+	count := result.RowsAffected
+	return needRestart, count, err
 }
