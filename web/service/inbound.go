@@ -362,3 +362,13 @@ func (s *InboundService) disableInvalidInbounds(tx *gorm.DB) (bool, int64, error
 	count := result.RowsAffected
 	return needRestart, count, err
 }
+
+func (s *InboundService) GetAllInbounds() ([]*model.Inbound, error) {
+	db := database.GetDB()
+	var inbounds []*model.Inbound
+	err := db.Model(model.Inbound{}).Preload("ClientStats").Find(&inbounds).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+	return inbounds, nil
+}

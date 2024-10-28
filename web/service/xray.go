@@ -91,6 +91,95 @@ func (s *XrayService) GetXrayConfig() (*xray.Config, error) {
 
 	s.inboundService.AddTraffic(nil, nil)
 
-	// println(templateConfig)
-	panic("todo GetXrayConfig")
+	inbounds, err := s.inboundService.GetAllInbounds()
+	if err != nil {
+		return nil, err
+	}
+	for _, inbound := range inbounds {
+		if !inbound.Enable {
+			continue
+		}
+		// get settings clients
+		settings := map[string]interface{}{}
+		json.Unmarshal([]byte(inbound.Settings), &settings)
+		clients, ok := settings["clients"].([]interface{})
+		if ok {
+			// check users active or not
+			clientStats := inbound.ClientStats
+			for _, clientTraffic := range clientStats {
+				indexDecrease := 0
+				for index, client := range clients {
+					c := client.(map[string]interface{})
+					if c["email"] == clientTraffic.Email {
+						if !clientTraffic.Enable {
+							clients = RemoveIndex(clients, index-indexDecrease)
+							indexDecrease++
+							logger.Infof("Remove Inbound User %s due to expiration or traffic limit", c["email"])
+						}
+					}
+				}
+			}
+
+			// clear client config for additional parameters
+			var final_clients []interface{}
+			for _, client := range clients {
+				c := client.(map[string]interface{})
+				if c["enable"] != nil {
+					if enable, ok := c["enable"].(bool); ok && !enable {
+						continue
+					}
+				}
+				for key := range c {
+					if key != "email" && key != "id" && key != "password" && key != "flow" && key != "method" {
+						delete(c, key)
+					}
+					if c["flow"] == "xtls-rprx-vision-udp443" {
+						c["flow"] = "xtls-rprx-vision"
+					}
+				}
+				final_clients = append(final_clients, interface{}(c))
+			}
+
+			settings["clients"] = final_clients
+			modifiedSettings, err := json.MarshalIndent(settings, "", "  ")
+			if err != nil {
+				return nil, err
+			}
+
+			inbound.Settings = string(modifiedSettings)
+		}
+
+		if len(inbound.StreamSettings) > 0 {
+			// Unmarshal stream JSON
+			var stream map[string]interface{}
+			json.Unmarshal([]byte(inbound.StreamSettings), &stream)
+
+			// Remove the "settings" field under "tlsSettings" and "realitySettings"
+			tlsSettings, ok1 := stream["tlsSettings"].(map[string]interface{})
+			realitySettings, ok2 := stream["realitySettings"].(map[string]interface{})
+			if ok1 || ok2 {
+				if ok1 {
+					delete(tlsSettings, "settings")
+				} else if ok2 {
+					delete(realitySettings, "settings")
+				}
+			}
+
+			delete(stream, "externalProxy")
+
+			newStream, err := json.MarshalIndent(stream, "", "  ")
+			if err != nil {
+				return nil, err
+			}
+			inbound.StreamSettings = string(newStream)
+		}
+		panic("TODO")
+		// inboundConfig := inbound.GenXrayInboundConfig()
+		// xrayConfig.InboundConfigs = append(xrayConfig.InboundConfigs, *inboundConfig)
+	}
+	return xrayConfig, nil
+}
+
+func RemoveIndex(s []interface{}, index int) []interface{} {
+	return append(s[:index], s[index+1:]...)
 }
