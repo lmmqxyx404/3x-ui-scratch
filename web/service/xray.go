@@ -173,9 +173,9 @@ func (s *XrayService) GetXrayConfig() (*xray.Config, error) {
 			}
 			inbound.StreamSettings = string(newStream)
 		}
-		panic("TODO")
-		// inboundConfig := inbound.GenXrayInboundConfig()
-		// xrayConfig.InboundConfigs = append(xrayConfig.InboundConfigs, *inboundConfig)
+
+		inboundConfig := inbound.GenXrayInboundConfig()
+		xrayConfig.InboundConfigs = append(xrayConfig.InboundConfigs, *inboundConfig)
 	}
 	return xrayConfig, nil
 }
