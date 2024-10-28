@@ -1,6 +1,9 @@
 package model
 
-import "x-ui-scratch/xray"
+import (
+	"fmt"
+	"x-ui-scratch/xray"
+)
 
 type Protocol string
 
@@ -37,4 +40,21 @@ type Inbound struct {
 	Tag            string   `json:"tag" form:"tag" gorm:"unique"`
 	Sniffing       string   `json:"sniffing" form:"sniffing"`
 	Allocate       string   `json:"allocate" form:"allocate"`
+}
+
+func (i *Inbound) GenXrayInboundConfig() *xray.InboundConfig {
+	listen := i.Listen
+	if listen != "" {
+		listen = fmt.Sprintf("\"%v\"", listen)
+	}
+	return &xray.InboundConfig{
+		/* Listen:         json_util.RawMessage(listen),
+		Port:           i.Port,
+		Protocol:       string(i.Protocol),
+		Settings:       json_util.RawMessage(i.Settings),
+		StreamSettings: json_util.RawMessage(i.StreamSettings),
+		Tag:            i.Tag,
+		Sniffing:       json_util.RawMessage(i.Sniffing),
+		Allocate:       json_util.RawMessage(i.Allocate), */
+	}
 }
