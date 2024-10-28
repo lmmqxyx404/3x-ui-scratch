@@ -68,12 +68,21 @@ func (s *XrayService) RestartXray(isForce bool) error {
 	lock.Lock()
 	defer lock.Unlock()
 	logger.Debug("restart xray, force:", isForce)
-
+	// s.GetXrayConfig 这是所有的 XrayConfig
 	xrayConfig, err := s.GetXrayConfig()
 	if err != nil {
 		return err
 	}
-	println(xrayConfig)
+
+	if s.IsXrayRunning() {
+		// 比较配置项
+		if !isForce && p.GetConfig().Equals(xrayConfig) {
+			logger.Debug("It does not need to restart xray")
+			return nil
+		}
+		p.Stop()
+	}
+	// println(xrayConfig)
 	panic("todo RestartXray")
 }
 
