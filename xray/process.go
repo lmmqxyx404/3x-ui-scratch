@@ -25,6 +25,8 @@ type process struct {
 	onlineClients []string
 
 	apiPort int
+
+	config *Config
 }
 
 func (p *process) IsRunning() bool {
@@ -77,4 +79,8 @@ func (p *Process) SetOnlineClients(users []string) {
 
 func (p *Process) GetAPIPort() int {
 	return p.apiPort
+}
+
+func (p *Process) GetConfig() *Config {
+	return p.config
 }
