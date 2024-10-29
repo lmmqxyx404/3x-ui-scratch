@@ -82,8 +82,14 @@ func (s *XrayService) RestartXray(isForce bool) error {
 		}
 		p.Stop()
 	}
-	// println(xrayConfig)
-	panic("todo RestartXray")
+
+	p = xray.NewProcess(xrayConfig)
+	result = ""
+	err = p.Start()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *XrayService) GetXrayConfig() (*xray.Config, error) {

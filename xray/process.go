@@ -84,3 +84,26 @@ func (p *Process) GetAPIPort() int {
 func (p *Process) GetConfig() *Config {
 	return p.config
 }
+
+func NewProcess(xrayConfig *Config) *Process {
+	p := &Process{newProcess(xrayConfig)}
+	runtime.SetFinalizer(p, stopProcess)
+	return p
+}
+
+func newProcess(config *Config) *process {
+	return &process{
+		version:   "Unknown",
+		config:    config,
+		logWriter: NewLogWriter(),
+		startTime: time.Now(),
+	}
+}
+
+func stopProcess(p *Process) {
+	p.Stop()
+}
+
+func (p *process) Start() (err error) {
+	panic("TODO process Start")
+}
