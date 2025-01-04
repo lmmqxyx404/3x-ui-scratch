@@ -323,7 +323,8 @@ func (s *ServerService) UpdateXray(version string) error {
 		_, err = io.Copy(file, zipFile)
 		return err
 	}
-
+	// todo:
+	println(xray.GetBinaryPath())
 	err = copyZipFile("xray", xray.GetBinaryPath())
 	if err != nil {
 		return err
