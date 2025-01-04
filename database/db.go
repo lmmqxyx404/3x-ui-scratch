@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"x-ui-scratch/config"
+	"x-ui-scratch/xray"
 
 	"x-ui-scratch/database/model"
 
@@ -60,7 +61,11 @@ func initModels() error {
 	// TODO: 添加可用的 model
 	models := []interface{}{
 		&model.User{},
+		&model.Inbound{},
+		// &model.OutboundTraffics{},
 		&model.Setting{},
+		// &model.InboundClientIps{},
+		&xray.ClientTraffic{},
 	}
 	for _, model := range models {
 		if err := db.AutoMigrate(model); err != nil {

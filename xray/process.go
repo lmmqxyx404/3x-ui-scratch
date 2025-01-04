@@ -1,13 +1,19 @@
 package xray
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 	"os/exec"
 	"runtime"
 	"syscall"
 	"time"
 	"x-ui-scratch/config"
+	"x-ui-scratch/logger"
+	"x-ui-scratch/util/common"
 )
 
 type Process struct {
@@ -73,6 +79,7 @@ func GetBinaryName() string {
 	return fmt.Sprintf("xray-%s-%s", runtime.GOOS, runtime.GOARCH)
 }
 
+
 func (p *Process) SetOnlineClients(users []string) {
 	p.onlineClients = users
 }
@@ -105,5 +112,77 @@ func stopProcess(p *Process) {
 }
 
 func (p *process) Start() (err error) {
-	panic("TODO process Start")
+	if p.IsRunning() {
+		return errors.New("xray is already running")
+	}
+
+	defer func() {
+		if err != nil {
+			logger.Error("Failure in running xray-core process: ", err)
+			p.exitErr = err
+		}
+	}()
+
+	data, err := json.MarshalIndent(p.config, "", "  ")
+	if err != nil {
+		return common.NewErrorf("Failed to generate XRAY configuration files: %v", err)
+	}
+
+	err = os.MkdirAll(config.GetLogFolder(), 0o770)
+	if err != nil {
+		logger.Warningf("Failed to create log folder: %s", err)
+	}
+
+	configPath := GetConfigPath()
+	err = os.WriteFile(configPath, data, fs.ModePerm)
+	if err != nil {
+		return common.NewErrorf("Failed to write configuration file: %v", err)
+	}
+
+	cmd := exec.Command(GetBinaryPath(), "-c", configPath)
+	p.cmd = cmd
+
+	cmd.Stdout = p.logWriter
+	cmd.Stderr = p.logWriter
+
+	go func() {
+		err := cmd.Run()
+		if err != nil {
+			logger.Error("Failure in running xray-core:", err)
+			p.exitErr = err
+		}
+	}()
+
+	p.refreshVersion()
+	p.refreshAPIPort()
+
+	return nil
+}
+
+func GetConfigPath() string {
+	return config.GetBinFolderPath() + "/config.json"
+}
+
+func (p *process) refreshAPIPort() {
+	for _, inbound := range p.config.InboundConfigs {
+		if inbound.Tag == "api" {
+			p.apiPort = inbound.Port
+			break
+		}
+	}
+}
+
+func (p *process) refreshVersion() {
+	cmd := exec.Command(GetBinaryPath(), "-version")
+	data, err := cmd.Output()
+	if err != nil {
+		p.version = "Unknown"
+	} else {
+		datas := bytes.Split(data, []byte(" "))
+		if len(datas) <= 1 {
+			p.version = "Unknown"
+		} else {
+			p.version = string(datas[1])
+		}
+	}
 }

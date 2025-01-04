@@ -71,7 +71,6 @@ func GetBinFolderPath() string {
 	return binFolderPath
 }
 
-/*
 func GetLogFolder() string {
 	logFolderPath := os.Getenv("XUI_LOG_FOLDER")
 	if logFolderPath == "" {
@@ -79,4 +78,3 @@ func GetLogFolder() string {
 	}
 	return logFolderPath
 }
-*/
