@@ -73,3 +73,15 @@ func Debugf(format string, args ...interface{}) {
 	logger.Debugf(format, args...)
 	addToBuffer("DEBUG", fmt.Sprintf(format, args...))
 }
+
+func GetLogs(c int, level string) []string {
+	var output []string
+	logLevel, _ := logging.LogLevel(level)
+
+	for i := len(logBuffer) - 1; i >= 0 && len(output) <= c; i-- {
+		if logBuffer[i].level <= logLevel {
+			output = append(output, fmt.Sprintf("%s %s - %s", logBuffer[i].time, logBuffer[i].level, logBuffer[i].log))
+		}
+	}
+	return output
+}
