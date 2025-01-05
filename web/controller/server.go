@@ -38,12 +38,13 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	g.POST("/stopXrayService", a.stopXrayService)
 	g.POST("/installXray/:version", a.installXray)
 	g.POST("/logs/:count", a.getLogs)
-	/* g.POST("/restartXrayService", a.restartXrayService)
-
 	g.POST("/getConfigJson", a.getConfigJson)
-	g.GET("/getDb", a.getDb)
-	g.POST("/importDB", a.importDB)
-	g.POST("/getNewX25519Cert", a.getNewX25519Cert) */
+	// g.POST("/restartXrayService", a.restartXrayService)
+	/*
+		g.GET("/getDb", a.getDb)
+		g.POST("/importDB", a.importDB)
+		g.POST("/getNewX25519Cert", a.getNewX25519Cert)
+	*/
 }
 
 func (a *ServerController) startTask() {
@@ -109,4 +110,13 @@ func (a *ServerController) getLogs(c *gin.Context) {
 	syslog := c.PostForm("syslog")
 	logs := a.serverService.GetLogs(count, level, syslog)
 	jsonObj(c, logs, nil)
+}
+
+func (a *ServerController) getConfigJson(c *gin.Context) {
+	configJson, err := a.serverService.GetConfigJson()
+	if err != nil {
+		jsonMsg(c, "get config.json", err)
+		return
+	}
+	jsonObj(c, configJson, nil)
 }
