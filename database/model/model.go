@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"x-ui-scratch/util/json_util"
 	"x-ui-scratch/xray"
 )
 
@@ -48,13 +49,13 @@ func (i *Inbound) GenXrayInboundConfig() *xray.InboundConfig {
 		listen = fmt.Sprintf("\"%v\"", listen)
 	}
 	return &xray.InboundConfig{
-		/* Listen:         json_util.RawMessage(listen),
+		Listen:         json_util.RawMessage(listen),
 		Port:           i.Port,
 		Protocol:       string(i.Protocol),
 		Settings:       json_util.RawMessage(i.Settings),
 		StreamSettings: json_util.RawMessage(i.StreamSettings),
 		Tag:            i.Tag,
 		Sniffing:       json_util.RawMessage(i.Sniffing),
-		Allocate:       json_util.RawMessage(i.Allocate), */
+		Allocate:       json_util.RawMessage(i.Allocate),
 	}
 }

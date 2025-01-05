@@ -9,7 +9,10 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
+	"strconv"
+	"strings"
 	"time"
 	"x-ui-scratch/logger"
 	"x-ui-scratch/util/sys"
@@ -380,4 +383,27 @@ func (s *ServerService) downloadXRay(version string) (string, error) {
 	}
 
 	return fileName, nil
+}
+
+func (s *ServerService) GetLogs(count string, level string, syslog string) []string {
+	c, _ := strconv.Atoi(count)
+	var lines []string
+
+	if syslog == "true" {
+		// 关键指令
+		cmdArgs := []string{"journalctl", "-u", "x-ui", "--no-pager", "-n", count, "-p", level}
+		// Run the command
+		cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
+		var out bytes.Buffer
+		cmd.Stdout = &out
+		err := cmd.Run()
+		if err != nil {
+			return []string{"Failed to run journalctl command!"}
+		}
+		lines = strings.Split(out.String(), "\n")
+	} else {
+		lines = logger.GetLogs(c, level)
+	}
+
+	return lines
 }
