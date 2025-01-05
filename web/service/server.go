@@ -407,3 +407,22 @@ func (s *ServerService) GetLogs(count string, level string, syslog string) []str
 
 	return lines
 }
+
+func (s *ServerService) GetConfigJson() (interface{}, error) {
+	config, err := s.xrayService.GetXrayConfig()
+	if err != nil {
+		return nil, err
+	}
+	contents, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+
+	var jsonData interface{}
+	err = json.Unmarshal(contents, &jsonData)
+	if err != nil {
+		return nil, err
+	}
+
+	return jsonData, nil
+}
