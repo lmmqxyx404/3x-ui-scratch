@@ -426,3 +426,15 @@ func (s *ServerService) GetConfigJson() (interface{}, error) {
 
 	return jsonData, nil
 }
+
+func (s *ServerService) RestartXrayService() (string error) {
+	s.xrayService.StopXray()
+	defer func() {
+		err := s.xrayService.RestartXray(true)
+		if err != nil {
+			logger.Error("start xray failed:", err)
+		}
+	}()
+
+	return nil
+}
