@@ -39,7 +39,7 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 	g.POST("/installXray/:version", a.installXray)
 	g.POST("/logs/:count", a.getLogs)
 	g.POST("/getConfigJson", a.getConfigJson)
-	// g.POST("/restartXrayService", a.restartXrayService)
+	g.POST("/restartXrayService", a.restartXrayService)
 	/*
 		g.GET("/getDb", a.getDb)
 		g.POST("/importDB", a.importDB)
@@ -119,4 +119,13 @@ func (a *ServerController) getConfigJson(c *gin.Context) {
 		return
 	}
 	jsonObj(c, configJson, nil)
+}
+
+func (a *ServerController) restartXrayService(c *gin.Context) {
+	err := a.serverService.RestartXrayService()
+	if err != nil {
+		jsonMsg(c, "", err)
+		return
+	}
+	jsonMsg(c, "Xray restarted", err)
 }
