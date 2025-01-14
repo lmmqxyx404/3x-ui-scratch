@@ -8,6 +8,8 @@ import (
 
 type XUIController struct {
 	BaseController
+
+	settingController *SettingController
 }
 
 func NewXUIController(g *gin.RouterGroup) *XUIController {
@@ -22,6 +24,10 @@ func (a *XUIController) initRouter(g *gin.RouterGroup) {
 	g.GET("/", a.index)
 	// note: vital router
 	g.GET("/inbounds", a.inbounds)
+	// g.GET("/settings", a.settings)
+
+	a.settingController = NewSettingController(g)
+
 	logger.Info("TODO: add init router")
 
 }

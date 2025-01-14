@@ -161,3 +161,67 @@ func (s *SettingService) getBool(key string) (bool, error) {
 func (s *SettingService) GetXrayConfigTemplate() (string, error) {
 	return s.getString("xrayTemplateConfig")
 }
+
+func (s *SettingService) GetDefaultSettings(host string) (interface{}, error) {
+	type settingFunc func() (interface{}, error)
+	settings := map[string]settingFunc{
+		/* "expireDiff":    func() (interface{}, error) { return s.GetExpireDiff() },
+		"trafficDiff":   func() (interface{}, error) { return s.GetTrafficDiff() },
+		"pageSize":      func() (interface{}, error) { return s.GetPageSize() },
+		"defaultCert":   func() (interface{}, error) { return s.GetCertFile() },
+		"defaultKey":    func() (interface{}, error) { return s.GetKeyFile() },
+		"tgBotEnable":   func() (interface{}, error) { return s.GetTgbotEnabled() },
+		"subEnable":     func() (interface{}, error) { return s.GetSubEnable() },
+		"subURI":        func() (interface{}, error) { return s.GetSubURI() },
+		"subJsonURI":    func() (interface{}, error) { return s.GetSubJsonURI() },
+		"remarkModel":   func() (interface{}, error) { return s.GetRemarkModel() },
+		"datepicker":    func() (interface{}, error) { return s.GetDatepicker() },
+		"ipLimitEnable": func() (interface{}, error) { return s.GetIpLimitEnable() }, */
+	}
+
+	result := make(map[string]interface{})
+
+	for key, fn := range settings {
+		value, err := fn()
+		if err != nil {
+			return "", err
+		}
+		result[key] = value
+	}
+
+	// todo: to complement the code.
+	if result["subEnable"].(bool) && (result["subURI"].(string) == "" || result["subJsonURI"].(string) == "") {
+		// subURI := ""
+		/* subPort, _ := s.GetSubPort()
+		subPath, _ := s.GetSubPath()
+		subJsonPath, _ := s.GetSubJsonPath()
+		subDomain, _ := s.GetSubDomain()
+		subKeyFile, _ := s.GetSubKeyFile()
+		subCertFile, _ := s.GetSubCertFile()
+		subTLS := false
+		if subKeyFile != "" && subCertFile != "" {
+			subTLS = true
+		}
+		if subDomain == "" {
+			subDomain = strings.Split(host, ":")[0]
+		}
+		if subTLS {
+			subURI = "https://"
+		} else {
+			subURI = "http://"
+		}
+		if (subPort == 443 && subTLS) || (subPort == 80 && !subTLS) {
+			subURI += subDomain
+		} else {
+			subURI += fmt.Sprintf("%s:%d", subDomain, subPort)
+		}
+		if result["subURI"].(string) == "" {
+			result["subURI"] = subURI + subPath
+		}
+		if result["subJsonURI"].(string) == "" {
+			result["subJsonURI"] = subURI + subJsonPath
+		} */
+	}
+
+	return result, nil
+}
