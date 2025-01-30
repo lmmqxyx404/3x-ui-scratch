@@ -79,7 +79,6 @@ func GetBinaryName() string {
 	return fmt.Sprintf("xray-%s-%s", runtime.GOOS, runtime.GOARCH)
 }
 
-
 func (p *Process) SetOnlineClients(users []string) {
 	p.onlineClients = users
 }
@@ -111,6 +110,7 @@ func stopProcess(p *Process) {
 	p.Stop()
 }
 
+// note: 关键部分
 func (p *process) Start() (err error) {
 	if p.IsRunning() {
 		return errors.New("xray is already running")
