@@ -14,3 +14,6 @@ init 函数是很不一样的
 
 ## project architecture
 ### `// note: vital router`
+
+
+还有类似的项目
